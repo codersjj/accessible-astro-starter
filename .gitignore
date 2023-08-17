@@ -24,4 +24,5 @@ yarn-error.log*
 .idea
 
 # package lock
-package-lock.json
+# https://docs.astro.build/en/guides/deploy/github/#:~:text=The%20official%20Astro%20action%20scans%20for%20a%20lockfile%20to%20detect%20your%20preferred%20package%20manager%20(npm%2C%20yarn%2C%20or%20pnpm).%20You%20should%20commit%20your%20package%20manager%E2%80%99s%20automatically%20generated%20package%2Dlock.json%2C%20yarn.lock%2C%20or%20pnpm%2Dlock.yaml%20file%20to%20your%20repository.
+# package-lock.json
