@@ -34,7 +34,7 @@ const { page } = Astro.props
           page.data.map((post) => (
             <li>
               <Card
-                url={'/blog/' + post.title.replaceAll(' ', '-').toLowerCase()}
+                url={'/accessible-astro-starter/blog/' + post.title.replaceAll(' ', '-').toLowerCase()}
                 title={post.title}
                 footer={'userId:' + post.userId}
               >
@@ -46,10 +46,10 @@ const { page } = Astro.props
       </ul>
       <div class="mt-12 grid place-content-center">
         <Pagination
-          firstPage={page.url.prev ? '/blog' : null}
-          previousPage={page.url.prev ? page.url.prev : null}
-          nextPage={page.url.next ? page.url.next : null}
-          lastPage={page.url.next ? `/blog/${Math.round(page.total / page.size)}` : null}
+          firstPage={page.url.prev ? '/accessible-astro-starter/blog' : null}
+          previousPage={page.url.prev ? `/accessible-astro-starter${page.url.prev}` : null}
+          nextPage={page.url.next ? `/accessible-astro-starter${page.url.next}` : null}
+          lastPage={page.url.next ? `/accessible-astro-starter/blog/${Math.round(page.total / page.size)}` : null}
           currentPage={page.currentPage}
           totalPages={Math.round(page.total / page.size)}
         />
