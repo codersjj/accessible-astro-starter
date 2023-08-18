@@ -7,7 +7,6 @@ import compress from 'astro-compress'
 export default defineConfig({
   // Deploy your Astro Site to GitHub Pages: https://docs.astro.build/en/guides/deploy/github/#:~:text=Set%20the%20site%20and%2C%20if%20needed%2C%20base%20options%20in%20astro.config.mjs.
   site: 'https://codersjj.github.io',
-  base: '/accessible-astro-starter',
 
   compressHTML: true,
   integrations: [mdx(), tailwind(), compress()],

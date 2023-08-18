@@ -20,8 +20,8 @@ const { post } = Astro.props
   <div class="container">
     <div class="mt-12">
       <Breadcrumbs>
-        <BreadcrumbsItem href="/accessible-astro-starter/" label="Home" />
-        <BreadcrumbsItem href="/accessible-astro-starter/blog" label="Blog" />
+        <BreadcrumbsItem href="/" label="Home" />
+        <BreadcrumbsItem href="/blog" label="Blog" />
         <BreadcrumbsItem currentPage={true} label={post.title} />
       </Breadcrumbs>
     </div>
