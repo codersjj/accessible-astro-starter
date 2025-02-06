@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Natural Snowfall</title>
+    <style is:global>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(#1a2b3c, #2c3e50);
+            overflow: hidden;
+        }
+
+        .snow-container {
+            position: fixed;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            filter: blur(0.5px) contrast(110%);
+        }
+
+        .snowflake {
+            position: absolute;
+            background: radial-gradient(
+                circle at 30% 30%, 
+                rgba(255,255,255,0.95) 15%,
+                rgba(255,255,255,0.6) 40%,
+                transparent 80%
+            );
+            border-radius: 50%;
+            transform-origin: 50% 400%;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes float {
+            0% {
+                transform: 
+                    translateY(-10vh)
+                    translateX(calc(var(--x-start) * 1vw))
+                    rotate(0deg);
+                opacity: 0.9;
+                filter: blur(1px);
+            }
+            50% {
+                transform: 
+                    translateX(calc(var(--x-mid) * 1vw))
+                    rotate(calc(var(--rotation) * 1deg));
+                filter: blur(1.5px);
+            }
+            100% {
+                transform: 
+                    translateY(110vh)
+                    translateX(calc(var(--x-end) * 1vw))
+                    rotate(calc(var(--rotation) * 2deg));
+                opacity: 0.4;
+                filter: blur(2px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="snow-container"></div>
+
+    <script>
+        class SnowSimulator {
+            constructor() {
+                this.container = document.querySelector('.snow-container');
+                this.pool = [];
+                this.maxFlakes = 200;
+                this.init();
+            }
+
+            init() {
+                // 创建雪花池
+                for (let i = 0; i < this.maxFlakes; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'snowflake';
+                    flake.style.visibility = 'hidden';
+                    this.container.appendChild(flake);
+                    this.pool.push({
+                        element: flake,
+                        active: false
+                    });
+                }
+
+                // 启动循环
+                this.spawnInterval = setInterval(() => this.spawnFlakes(), 80);
+                this.spawnFlakes(30); // 初始批次
+            }
+
+            spawnFlakes(count = 1) {
+                for (let i = 0; i < count; i++) {
+                    const flake = this.getAvailableFlake();
+                    if (!flake) return;
+
+                    const params = {
+                        size: Math.random() * 5 + 3, // 3-8px
+                        duration: 8 + Math.random() * 8,
+                        xStart: (Math.random() - 0.5) * 120,
+                        xEnd: (Math.random() - 0.5) * 150,
+                        rotation: (Math.random() - 0.5) * 180,
+                        delay: Math.random() * 2
+                    };
+
+                    flake.element.style.cssText = `
+                        width: ${params.size}px;
+                        height: ${params.size}px;
+                        --x-start: ${params.xStart};
+                        --x-mid: ${params.xStart + (Math.random() - 0.5) * 30};
+                        --x-end: ${params.xEnd};
+                        --rotation: ${params.rotation};
+                        animation: float linear forwards ${params.duration}s;
+                        animation-delay: ${params.delay}s;
+                        visibility: visible;
+                        filter: blur(${params.size * 0.2}px);
+                        left: ${Math.random() * 100}%;
+                    `;
+
+                    flake.active = true;
+                    flake.element.addEventListener('animationend', () => {
+                        this.resetFlake(flake);
+                    }, { once: true });
+                }
+            }
+
+            getAvailableFlake() {
+                return this.pool.find(f => !f.active);
+            }
+
+            resetFlake(flake) {
+                flake.element.style.visibility = 'hidden';
+                flake.element.style.animation = '';
+                flake.active = false;
+            }
+        }
+
+        // 初始化
+        new SnowSimulator();
+
+        // 窗口适配
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.snowflake').forEach(f => {
+                f.style.visibility = 'hidden';
+                f.style.animation = '';
+            });
+        });
+    </script>
+</body>
+</html>
