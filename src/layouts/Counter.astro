@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>空格计数器</title>
+    <style is:global>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+
+        #count {
+            font-size: 10rem;
+            color: #2c3e50;
+            margin: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="count">0</div>
+    <p>按下空格键开始计数<br>（请确保输入法为英文状态）</p>
+
+    <script>
+        let count = 0;
+        const countElement = document.getElementById('count');
+        const synth = window.speechSynthesis;
+        
+        function speak(text) {
+            if (synth.speaking) return; // 防止语音重叠
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9;
+            synth.speak(utterance);
+        }
+
+        let clickCount = 0
+        const clickHandler = () => {
+            clickCount++
+            if (clickCount === 1) speak("准备好了吗？");
+            else {
+              speak('开始');
+              document.removeEventListener('click', clickHandler);
+            }
+        }
+        document.addEventListener('click', clickHandler);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' && !event.repeat) {
+                event.preventDefault(); // 防止空格键滚动页面
+                
+                count++;
+                countElement.textContent = count;
+                countElement.classList.add('pop');
+                setTimeout(() => countElement.classList.remove('pop'), 100);
+
+                if (count === 50) {
+                    speak("太棒了！你已完成50遍练习！");
+                } else if (count % 5 === 0) {
+                    speak(`${count}遍`);
+                }
+            }
+        });
+
+        // 添加简单动画效果
+        const style = document.createElement('style');
+        style.textContent = `
+            .pop {
+                animation: pop 0.2s ease-in-out;
+            }
+            @keyframes pop {
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
