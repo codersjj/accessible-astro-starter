@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟群星璀璨0802国际影视班抽签系统</title>
+    <style is:global>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .title {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+
+        .picker-section {
+            margin-bottom: 30px;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .result-display.picking {
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .result-name {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-english {
+            font-size: 1.5em;
+            opacity: 0.9;
+        }
+
+        .empty-result {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .mode-selector {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mode-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .mode-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .mode-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .mode-option.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .mode-desc {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48c78e, #06d6a0);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #54a0ff, #5f27cd);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 0;
+        }
+
+        .config-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            color: #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .config-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .config-content.expanded {
+            max-height: 600px;
+        }
+
+        .student-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .student-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .student-item.picked {
+            background: #f8f9fa;
+            opacity: 0.6;
+            border-color: #dee2e6;
+        }
+
+        .student-item:hover:not(.picked) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-info {
+            text-align: left;
+        }
+
+        .student-chinese {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .student-english {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .add-student {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .add-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            min-width: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        .add-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌟群星璀璨0802国际影视班抽签系统</h1>
+        <p class="subtitle">使用 Fisher-Yates 随机化算法，公平、随机</p>
+        
+        <div class="picker-section">
+            <div class="mode-selector">
+                <div class="mode-title">🎮 抽签模式</div>
+                <div class="mode-options">
+                    <div class="mode-option active" id="noRepeatMode">
+                        <div class="mode-label">🎯 不重复模式</div>
+                        <div class="mode-desc">抽过的学生不会再被抽到</div>
+                    </div>
+                    <div class="mode-option" id="repeatMode">
+                        <div class="mode-label">🔄 重复模式</div>
+                        <div class="mode-desc">每次都从所有学生中随机抽取</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="empty-result">点击下方“🎲 开始抽签”按钮开始抽签</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-success" id="pickBtn">🎲 开始抽签</button>
+                <button class="btn btn-warning" id="resetBtn">🔄 重置所有</button>
+                <button class="btn btn-info" id="configBtn">⚙️ 管理学生</button>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-header" id="configHeader">
+                <span class="config-title">学生管理</span>
+                <span class="toggle-icon" id="toggleIcon">▼</span>
+            </div>
+            <div class="config-content" id="configContent">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalStudents">32</div>
+                        <div class="stat-label">总人数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="remainingStudents">32</div>
+                        <div class="stat-label">剩余人数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="pickedCount">0</div>
+                        <div class="stat-label">已抽取</div>
+                    </div>
+                </div>
+                
+                <div class="add-student">
+                    <input type="text" class="add-input" id="chineseNameInput" placeholder="中文名">
+                    <input type="text" class="add-input" id="englishNameInput" placeholder="英文名">
+                    <button class="btn" id="addStudentBtn">➕ 添加</button>
+                </div>
+                
+                <div class="student-list" id="studentList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class StudentPicker {
+            constructor() {
+                this.students = [
+                    { chinese: '陈硕颖', english: 'Chloe', picked: false },
+                    { chinese: '梁瑞尧', english: 'Henry', picked: false },
+                    { chinese: '代睿杰', english: 'Blair', picked: false },
+                    { chinese: '姜春', english: 'kami', picked: false },
+                    { chinese: '孔思鉴', english: 'Kyson', picked: false },
+                    { chinese: '廖伊熙', english: 'lvy', picked: false },
+                    { chinese: '刘佳乐', english: 'Leo', picked: false },
+                    { chinese: '朱爱琴', english: 'Lily', picked: false },
+                    { chinese: '宋雨霏', english: 'Yrunn', picked: false },
+                    { chinese: '王依宁', english: 'Jannie', picked: false },
+                    { chinese: '吴瑞鹏', english: 'Raptor', picked: false },
+                    { chinese: '吴文煜', english: 'Bianca', picked: false },
+                    { chinese: '林祥辉', english: 'Derrick', picked: false },
+                    { chinese: '谢余星', english: 'Rory', picked: false },
+                    { chinese: '沙俊杰', english: 'Shane', picked: false },
+                    { chinese: '杨雨欣', english: 'Mira', picked: false },
+                    { chinese: '叶文锋', english: 'Alan', picked: false },
+                    { chinese: '伍丙章', english: 'king', picked: false },
+                    { chinese: '攸燕姿', english: 'Vania', picked: false },
+                    { chinese: '张海榕', english: 'Sea', picked: false },
+                    { chinese: '张龙新', english: 'SMITH', picked: false },
+                    { chinese: '张欣', english: 'Lucky', picked: false },
+                    { chinese: '李维欢', english: 'Jesse', picked: false },
+                    { chinese: '张金爽', english: 'Aria', picked: false },
+                    { chinese: '陈思言', english: 'Cyan', picked: false },
+                    { chinese: '陈晨', english: 'Ashely', picked: false },
+                    { chinese: '李碧原', english: '', picked: false },
+                    { chinese: '王宇霞', english: 'Yuki', picked: false },
+                    { chinese: '孙嘉怿', english: 'seven', picked: false },
+                    { chinese: '杨苑艺', english: 'YE', picked: false },
+                    { chinese: '贾金坡', english: 'Jasper', picked: false },
+                    { chinese: '朱豪杰', english: 'Clover', picked: false }
+                ];
+                this.isRepeatMode = false; // false: 不重复模式, true: 重复模式
+                this.initializeElements();
+                this.bindEvents();
+                this.updateDisplay();
+            }
+
+            initializeElements() {
+                this.resultDisplay = document.getElementById('resultDisplay');
+                this.pickBtn = document.getElementById('pickBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.configBtn = document.getElementById('configBtn');
+                this.configHeader = document.getElementById('configHeader');
+                this.configContent = document.getElementById('configContent');
+                this.toggleIcon = document.getElementById('toggleIcon');
+                this.studentList = document.getElementById('studentList');
+                this.chineseNameInput = document.getElementById('chineseNameInput');
+                this.englishNameInput = document.getElementById('englishNameInput');
+                this.addStudentBtn = document.getElementById('addStudentBtn');
+                this.totalStudents = document.getElementById('totalStudents');
+                this.remainingStudents = document.getElementById('remainingStudents');
+                this.pickedCount = document.getElementById('pickedCount');
+                this.noRepeatMode = document.getElementById('noRepeatMode');
+                this.repeatMode = document.getElementById('repeatMode');
+            }
+
+            bindEvents() {
+                this.pickBtn.addEventListener('click', () => this.pickStudent());
+                this.resetBtn.addEventListener('click', () => this.resetAll());
+                this.configBtn.addEventListener('click', () => this.toggleConfig());
+                this.configHeader.addEventListener('click', () => this.toggleConfig());
+                this.addStudentBtn.addEventListener('click', () => this.addStudent());
+                this.noRepeatMode.addEventListener('click', () => this.setMode(false));
+                this.repeatMode.addEventListener('click', () => this.setMode(true));
+                
+                // 回车键添加学生
+                [this.chineseNameInput, this.englishNameInput].forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.addStudent();
+                    });
+                });
+            }
+
+            // Fisher-Yates 随机化算法
+            fisherYatesShuffle(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+
+            pickStudent() {
+                let candidateStudents;
+                
+                if (this.isRepeatMode) {
+                    // 重复模式：从所有学生中选择
+                    candidateStudents = this.students;
+                } else {
+                    // 不重复模式：只从未被抽取的学生中选择
+                    candidateStudents = this.students.filter(student => !student.picked);
+                }
+                
+                if (candidateStudents.length === 0) {
+                    this.showResult('所有学生都已被抽取！', '请点击重置开始新一轮');
+                    return;
+                }
+
+                // 添加抽签动画
+                this.resultDisplay.classList.add('picking');
+                this.pickBtn.disabled = true;
+                
+                // 使用 Fisher-Yates 算法随机选择
+                const shuffled = this.fisherYatesShuffle(candidateStudents);
+                const selectedStudent = shuffled[0];
+                
+                // 模拟抽签过程
+                let counter = 0;
+                const animationInterval = setInterval(() => {
+                    const randomStudent = candidateStudents[Math.floor(Math.random() * candidateStudents.length)];
+                    this.showResult(randomStudent.chinese, randomStudent.english || '');
+                    counter++;
+                    
+                    if (counter > 10) {
+                        clearInterval(animationInterval);
+                        // 显示最终结果
+                        if (!this.isRepeatMode) {
+                            selectedStudent.picked = true;
+                        }
+                        this.showResult(selectedStudent.chinese, selectedStudent.english || '');
+                        this.resultDisplay.classList.remove('picking');
+                        this.pickBtn.disabled = false;
+                        this.updateDisplay();
+                    }
+                }, 100);
+            }
+
+            showResult(chinese, english) {
+                this.resultDisplay.innerHTML = `
+                    <div class="result-name">${chinese}</div>
+                    ${english ? `<div class="result-english">${english}</div>` : ''}
+                `;
+            }
+
+            resetAll() {
+                this.students.forEach(student => student.picked = false);
+                this.resultDisplay.innerHTML = '<div class="empty-result">点击开始抽签</div>';
+                this.updateDisplay();
+            }
+
+            setMode(isRepeatMode) {
+                this.isRepeatMode = isRepeatMode;
+                
+                // 更新UI状态
+                if (isRepeatMode) {
+                    this.repeatMode.classList.add('active');
+                    this.noRepeatMode.classList.remove('active');
+                } else {
+                    this.noRepeatMode.classList.add('active');
+                    this.repeatMode.classList.remove('active');
+                }
+                
+                // 重置所有学生状态（切换到重复模式时清除已抽取标记）
+                if (isRepeatMode) {
+                    this.students.forEach(student => student.picked = false);
+                }
+                
+                this.updateDisplay();
+            }
+
+            toggleConfig() {
+                const isExpanded = this.configContent.classList.contains('expanded');
+                if (isExpanded) {
+                    this.configContent.classList.remove('expanded');
+                    this.toggleIcon.classList.remove('rotated');
+                } else {
+                    this.configContent.classList.add('expanded');
+                    this.toggleIcon.classList.add('rotated');
+                }
+            }
+
+            addStudent() {
+                const chinese = this.chineseNameInput.value.trim();
+                const english = this.englishNameInput.value.trim();
+                
+                if (!chinese) {
+                    alert('请输入中文名！');
+                    return;
+                }
+                
+                // 检查是否已存在
+                const exists = this.students.some(student => 
+                    student.chinese === chinese || (english && student.english === english)
+                );
+                
+                if (exists) {
+                    alert('该学生已存在！');
+                    return;
+                }
+                
+                this.students.push({
+                    chinese: chinese,
+                    english: english,
+                    picked: false
+                });
+                
+                this.chineseNameInput.value = '';
+                this.englishNameInput.value = '';
+                this.updateDisplay();
+            }
+
+            deleteStudent(index) {
+                if (confirm('确定要删除这个学生吗？')) {
+                    this.students.splice(index, 1);
+                    this.updateDisplay();
+                }
+            }
+
+            updateDisplay() {
+                // 更新统计信息
+                const total = this.students.length;
+                const picked = this.students.filter(s => s.picked).length;
+                const remaining = this.isRepeatMode ? total : total - picked;
+                
+                this.totalStudents.textContent = total;
+                this.remainingStudents.textContent = remaining;
+                this.pickedCount.textContent = picked;
+                
+                // 更新学生列表
+                this.studentList.innerHTML = '';
+                this.students.forEach((student, index) => {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = `student-item ${(!this.isRepeatMode && student.picked) ? 'picked' : ''}`;
+                    studentItem.innerHTML = `
+                        <div class="student-info">
+                            <div class="student-chinese">${student.chinese}</div>
+                            ${student.english ? `<div class="student-english">${student.english}</div>` : ''}
+                        </div>
+                        <button class="delete-btn" onclick="picker.deleteStudent(${index})">×</button>
+                    `;
+                    this.studentList.appendChild(studentItem);
+                });
+                
+                // 更新按钮状态
+                this.pickBtn.disabled = this.isRepeatMode ? total === 0 : remaining === 0;
+            }
+        }
+
+        // 初始化抽签系统
+        const picker = new StudentPicker();
+    </script>
+</body>
+</html>
