@@ -217,6 +217,10 @@
         }
 
         .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .3rem;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
@@ -479,7 +483,12 @@
                 <div class="add-student">
                     <input type="text" class="add-input" id="chineseNameInput" placeholder="中文名">
                     <input type="text" class="add-input" id="englishNameInput" placeholder="英文名">
-                    <button class="btn" id="addStudentBtn">➕ 添加</button>
+                    <button class="btn" id="addStudentBtn">
+                      <svg width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="#ffffff"/>
+                      </svg>
+                      添加
+                    </button>
                 </div>
                 
                 <div class="student-list" id="studentList"></div>
