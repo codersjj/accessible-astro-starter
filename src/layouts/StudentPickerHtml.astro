@@ -33,11 +33,72 @@
             position: relative;
         }
 
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
         .title {
             color: #333;
             font-size: 2.5em;
-            margin-bottom: 10px;
             font-weight: 700;
+            position: relative;
+        }
+
+        /* Star emoji interactive styles */
+        .star-emoji {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+        }
+
+        .star-emoji:hover {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .star-emoji:active {
+            transform: scale(1.2);
+        }
+
+        .star-emoji.liked {
+            animation: starBeat 0.6s ease;
+        }
+
+        @keyframes starBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.3) rotate(15deg); }
+            50% { transform: scale(1.1) rotate(-10deg); }
+            75% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Floating stars animation */
+        .floating-star {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            animation: starFloatUp 2s ease-out forwards;
+            opacity: 1;
+        }
+
+        @keyframes starFloatUp {
+            0% {
+                transform: translateY(0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-50px) scale(1.2) rotate(180deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.5) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .subtitle {
@@ -346,11 +407,26 @@
             color: #666;
             margin-top: 5px;
         }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">🌟群星璀璨0802国际影视班抽签系统</h1>
+        <div class="header">
+            <h1 class="title">
+                <span class="star-emoji" id="starEmoji">🌟</span>群星璀璨0802国际影视班抽签系统
+            </h1>
+        </div>
         <p class="subtitle">使用 Fisher-Yates 随机化算法，公平、随机</p>
         
         <div class="picker-section">
@@ -414,41 +490,42 @@
     <script>
         class StudentPicker {
             constructor() {
-              this.students = [
-                { chinese: '陈晨', english: 'Ashely', picked: false },
-                { chinese: '陈硕颖', english: 'Chloe', picked: false },
-                { chinese: '陈思言', english: 'Cyan', picked: false },
-                { chinese: '代睿杰', english: 'Blair', picked: false },
-                { chinese: '贾金坡', english: 'Jasper', picked: false },
-                { chinese: '姜春', english: 'kami', picked: false },
-                { chinese: '孔思鉴', english: 'Kyson', picked: false },
-                { chinese: '李碧原', english: '', picked: false },
-                { chinese: '李维欢', english: 'Jesse', picked: false },
-                { chinese: '梁瑞尧', english: 'Henry', picked: false },
-                { chinese: '廖伊熙', english: 'lvy', picked: false },
-                { chinese: '林祥辉', english: 'Derrick', picked: false },
-                { chinese: '刘佳乐', english: 'Leo', picked: false },
-                { chinese: '沙俊杰', english: 'Shane', picked: false },
-                { chinese: '宋雨霏', english: 'Yrunn', picked: false },
-                { chinese: '孙嘉怿', english: 'seven', picked: false },
-                { chinese: '王宇霞', english: 'Yuki', picked: false },
-                { chinese: '王依宁', english: 'Jannie', picked: false },
-                { chinese: '伍丙章', english: 'king', picked: false },
-                { chinese: '吴瑞鹏', english: 'Raptor', picked: false },
-                { chinese: '吴文煜', english: 'Bianca', picked: false },
-                { chinese: '谢余星', english: 'Rory', picked: false },
-                { chinese: '攸燕姿', english: 'Vania', picked: false },
-                { chinese: '叶文锋', english: 'Alan', picked: false },
-                { chinese: '杨苑艺', english: 'YE', picked: false },
-                { chinese: '杨雨欣', english: 'Mira', picked: false },
-                { chinese: '张海榕', english: 'Sea', picked: false },
-                { chinese: '张金爽', english: 'Aria', picked: false },
-                { chinese: '张龙新', english: 'SMITH', picked: false },
-                { chinese: '张欣', english: 'Lucky', picked: false },
-                { chinese: '朱爱琴', english: 'Lily', picked: false },
-                { chinese: '朱豪杰', english: 'Clover', picked: false }
-            ];
+                this.students = [
+                    { chinese: '陈晨', english: 'Ashely', picked: false },
+                    { chinese: '陈硕颖', english: 'Chloe', picked: false },
+                    { chinese: '陈思言', english: 'Cyan', picked: false },
+                    { chinese: '代睿杰', english: 'Blair', picked: false },
+                    { chinese: '贾金坡', english: 'Jasper', picked: false },
+                    { chinese: '姜春', english: 'kami', picked: false },
+                    { chinese: '孔思鉴', english: 'Kyson', picked: false },
+                    { chinese: '李碧原', english: '', picked: false },
+                    { chinese: '李维欢', english: 'Jesse', picked: false },
+                    { chinese: '梁瑞尧', english: 'Henry', picked: false },
+                    { chinese: '廖伊熙', english: 'lvy', picked: false },
+                    { chinese: '林祥辉', english: 'Derrick', picked: false },
+                    { chinese: '刘佳乐', english: 'Leo', picked: false },
+                    { chinese: '沙俊杰', english: 'Shane', picked: false },
+                    { chinese: '宋雨霏', english: 'Yrunn', picked: false },
+                    { chinese: '孙嘉怿', english: 'seven', picked: false },
+                    { chinese: '王宇霞', english: 'Yuki', picked: false },
+                    { chinese: '王依宁', english: 'Jannie', picked: false },
+                    { chinese: '伍丙章', english: 'king', picked: false },
+                    { chinese: '吴瑞鹏', english: 'Raptor', picked: false },
+                    { chinese: '吴文煜', english: 'Bianca', picked: false },
+                    { chinese: '谢余星', english: 'Rory', picked: false },
+                    { chinese: '攸燕姿', english: 'Vania', picked: false },
+                    { chinese: '叶文锋', english: 'Alan', picked: false },
+                    { chinese: '杨苑艺', english: 'YE', picked: false },
+                    { chinese: '杨雨欣', english: 'Mira', picked: false },
+                    { chinese: '张海榕', english: 'Sea', picked: false },
+                    { chinese: '张金爽', english: 'Aria', picked: false },
+                    { chinese: '张龙新', english: 'SMITH', picked: false },
+                    { chinese: '张欣', english: 'Lucky', picked: false },
+                    { chinese: '朱爱琴', english: 'Lily', picked: false },
+                    { chinese: '朱豪杰', english: 'Clover', picked: false }
+                ];
                 this.isRepeatMode = false; // false: 不重复模式, true: 重复模式
+                this.playbackRate = 0.75;
                 this.initializeElements();
                 this.bindEvents();
                 this.updateDisplay();
@@ -471,6 +548,7 @@
                 this.pickedCount = document.getElementById('pickedCount');
                 this.noRepeatMode = document.getElementById('noRepeatMode');
                 this.repeatMode = document.getElementById('repeatMode');
+                this.starEmoji = document.getElementById('starEmoji');
             }
 
             bindEvents() {
@@ -481,6 +559,7 @@
                 this.addStudentBtn.addEventListener('click', () => this.addStudent());
                 this.noRepeatMode.addEventListener('click', () => this.setMode(false));
                 this.repeatMode.addEventListener('click', () => this.setMode(true));
+                this.starEmoji.addEventListener('click', () => this.handleStarClick());
                 
                 // 使用事件委托处理删除按钮点击
                 this.studentList.addEventListener('click', (e) => {
@@ -496,6 +575,62 @@
                         if (e.key === 'Enter') this.addStudent();
                     });
                 });
+            }
+
+            // Star emoji click functionality
+            handleStarClick() {
+                this.starEmoji.classList.add('liked');
+                this.createFloatingStar();
+                this.playSound();
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    this.starEmoji.classList.remove('liked');
+                }, 600);
+            }
+
+            createFloatingStar() {
+                const star = document.createElement('div');
+                star.className = 'floating-star';
+                star.textContent = '🌟';
+                star.style.left = '0px';
+                star.style.top = '0px';
+                
+                this.starEmoji.style.position = 'relative';
+                this.starEmoji.appendChild(star);
+                
+                setTimeout(() => {
+                    star.remove();
+                }, 2000);
+            }
+
+            playSound() {
+                // Simple sound effect using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // Create a pleasant "pop" sound
+                    oscillator.frequency.setValueAtTime(800 * this.playbackRate, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(200 * this.playbackRate, audioContext.currentTime + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    
+                    // Increase playback rate for next click
+                    this.playbackRate += 0.1;
+                    if (this.playbackRate > 2) this.playbackRate = 0.75;
+                    
+                } catch (error) {
+                    console.log('Web Audio API not supported');
+                }
             }
 
             // Fisher-Yates 随机化算法
