@@ -482,6 +482,14 @@
                 this.noRepeatMode.addEventListener('click', () => this.setMode(false));
                 this.repeatMode.addEventListener('click', () => this.setMode(true));
                 
+                // 使用事件委托处理删除按钮点击
+                this.studentList.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-btn')) {
+                        const index = parseInt(e.target.dataset.index);
+                        this.deleteStudent(index);
+                    }
+                });
+                
                 // 回车键添加学生
                 [this.chineseNameInput, this.englishNameInput].forEach(input => {
                     input.addEventListener('keypress', (e) => {
@@ -646,7 +654,7 @@
                             <div class="student-chinese">${student.chinese}</div>
                             ${student.english ? `<div class="student-english">${student.english}</div>` : ''}
                         </div>
-                        <button class="delete-btn" onclick="picker.deleteStudent(${index})">×</button>
+                        <button class="delete-btn" data-index="${index}">×</button>
                     `;
                     this.studentList.appendChild(studentItem);
                 });
