@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌟群星璀璨0802国际影视班抽签系统</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <style is:global>
         * {
             margin: 0;
@@ -412,6 +415,48 @@
             margin-top: 5px;
         }
 
+        /* Sonner Toast 样式覆盖 */
+        [data-sonner-toaster] {
+            --toast-bg: white;
+            --toast-border: rgb(229, 231, 235);
+            --toast-text: rgb(15, 23, 42);
+            --toast-success-bg: rgb(240, 253, 244);
+            --toast-success-border: rgb(34, 197, 94);
+            --toast-success-text: rgb(21, 128, 61);
+            --toast-error-bg: rgb(254, 242, 242);
+            --toast-error-border: rgb(239, 68, 68);
+            --toast-error-text: rgb(185, 28, 28);
+            --toast-warning-bg: rgb(255, 251, 235);
+            --toast-warning-border: rgb(245, 158, 11);
+            --toast-warning-text: rgb(146, 64, 14);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        [data-sonner-toast] {
+            border-radius: 12px !important;
+            border: 2px solid var(--toast-border) !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+        }
+
+        [data-sonner-toast][data-type="success"] {
+            background-color: var(--toast-success-bg) !important;
+            border-color: var(--toast-success-border) !important;
+            color: var(--toast-success-text) !important;
+        }
+
+        [data-sonner-toast][data-type="error"] {
+            background-color: var(--toast-error-bg) !important;
+            border-color: var(--toast-error-border) !important;
+            color: var(--toast-error-text) !important;
+        }
+
+        [data-sonner-toast][data-type="warning"] {
+            background-color: var(--toast-warning-bg) !important;
+            border-color: var(--toast-warning-border) !important;
+            color: var(--toast-warning-text) !important;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -425,6 +470,7 @@
     </style>
 </head>
 <body>
+    <div id="toaster-root"></div>
     <div class="container">
         <div class="header">
             <h1 class="title">
@@ -495,6 +541,123 @@
             </div>
         </div>
     </div>
+
+    <script type="text/babel">
+        // Sonner Toast 组件 (简化版)
+        const { useState, useEffect, useCallback } = React;
+
+        const Sonner = () => {
+            const [toasts, setToasts] = useState([]);
+            
+            const addToast = useCallback((type, title, options = {}) => {
+                const id = Date.now() + Math.random();
+                const newToast = {
+                    id,
+                    type,
+                    title,
+                    description: options.description,
+                    action: options.action,
+                    duration: options.duration || 4000
+                };
+                
+                setToasts(prev => [...prev, newToast]);
+                
+                // 自动移除
+                setTimeout(() => {
+                    setToasts(prev => prev.filter(toast => toast.id !== id));
+                }, newToast.duration);
+                
+                return id;
+            }, []);
+
+            const removeToast = useCallback((id) => {
+                setToasts(prev => prev.filter(toast => toast.id !== id));
+            }, []);
+
+            // 全局 toast 方法
+            useEffect(() => {
+                window.toast = {
+                    success: (title, options) => addToast('success', title, options),
+                    error: (title, options) => addToast('error', title, options),
+                    warning: (title, options) => addToast('warning', title, options),
+                    info: (title, options) => addToast('info', title, options),
+                };
+            }, [addToast]);
+
+            return React.createElement('div', {
+                'data-sonner-toaster': '',
+                style: {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 999999,
+                    pointerEvents: 'none'
+                }
+            }, React.createElement('div', {
+                style: {
+                    position: 'fixed',
+                    top: '20px',
+                    right: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    maxWidth: '356px',
+                    width: '100%'
+                }
+            }, toasts.map(toast => 
+                React.createElement('div', {
+                    key: toast.id,
+                    'data-sonner-toast': '',
+                    'data-type': toast.type,
+                    style: {
+                        pointerEvents: 'auto',
+                        backgroundColor: 'white',
+                        border: '2px solid rgb(229, 231, 235)',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                        animation: 'slideIn 0.2s ease-out',
+                        cursor: 'pointer'
+                    },
+                    onClick: () => removeToast(toast.id)
+                }, [
+                    React.createElement('div', {
+                        key: 'title',
+                        style: { fontWeight: '600', marginBottom: '4px' }
+                    }, toast.title),
+                    toast.description && React.createElement('div', {
+                        key: 'desc',
+                        style: { fontSize: '14px', opacity: '0.8' }
+                    }, toast.description),
+                    toast.action && React.createElement('div', {
+                        key: 'action',
+                        style: { marginTop: '8px' }
+                    }, toast.action)
+                ].filter(Boolean))
+            )));
+        };
+
+        // 挂载 Sonner 组件
+        ReactDOM.render(React.createElement(Sonner), document.getElementById('toaster-root'));
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 
     <script>
         class StudentPicker {
@@ -741,6 +904,13 @@
                 this.students.forEach(student => student.picked = false);
                 this.resultDisplay.innerHTML = '<div class="empty-result">点击下方“🎲 开始抽签”按钮开始抽签</div>';
                 this.updateDisplay();
+                
+                // 使用 Sonner 显示重置成功消息
+                if (window.toast) {
+                    window.toast.success('🔄 重置成功', {
+                        description: '所有学生状态已重置，可以重新开始抽签'
+                    });
+                }
             }
 
             setMode(isRepeatMode) {
@@ -761,6 +931,13 @@
                 }
                 
                 this.updateDisplay();
+                
+                // 使用 Sonner 显示模式切换消息
+                if (window.toast) {
+                    window.toast.info('🎮 模式切换', {
+                        description: isRepeatMode ? '已切换到重复模式' : '已切换到不重复模式'
+                    });
+                }
             }
 
             toggleConfig() {
@@ -779,7 +956,11 @@
                 const english = this.englishNameInput.value.trim();
                 
                 if (!chinese) {
-                    alert('请输入中文名！');
+                    if (window.toast) {
+                        window.toast.warning('⚠️ 输入错误', {
+                            description: '请输入中文名！'
+                        });
+                    }
                     return;
                 }
                 
@@ -789,7 +970,11 @@
                 );
                 
                 if (exists) {
-                    alert('该学生已存在！');
+                    if (window.toast) {
+                        window.toast.warning('⚠️ 学生已存在', {
+                            description: '该学生已经在列表中了！'
+                        });
+                    }
                     return;
                 }
                 
@@ -802,12 +987,69 @@
                 this.chineseNameInput.value = '';
                 this.englishNameInput.value = '';
                 this.updateDisplay();
+                
+                // 使用 Sonner 显示添加成功消息
+                if (window.toast) {
+                    window.toast.success('✅ 学生添加成功', {
+                        description: `${chinese}${english ? ` (${english})` : ''} 已添加到班级名单`
+                    });
+                }
             }
 
             deleteStudent(index) {
-                if (confirm('确定要删除这个学生吗？')) {
-                    this.students.splice(index, 1);
-                    this.updateDisplay();
+                const student = this.students[index];
+                if (!student) return;
+                
+                // 使用 Sonner 显示确认删除的 Toast
+                if (window.toast) {
+                    const confirmButton = React.createElement('button', {
+                        style: {
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: '500'
+                        },
+                        onClick: () => {
+                            this.students.splice(index, 1);
+                            this.updateDisplay();
+                            
+                            // 显示删除成功消息
+                            window.toast.success('🗑️ 学生删除成功', {
+                                description: `${student.chinese}${student.english ? ` (${student.english})` : ''} 已从班级名单中移除`
+                            });
+                        }
+                    }, '确认删除');
+                    
+                    const cancelButton = React.createElement('button', {
+                        style: {
+                            background: '#6b7280',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            marginLeft: '8px'
+                        },
+                        onClick: () => {
+                            // Toast 会自动关闭，这里不需要额外操作
+                        }
+                    }, '取消');
+                    
+                    const actionDiv = React.createElement('div', {
+                        style: { display: 'flex', gap: '8px', marginTop: '8px' }
+                    }, confirmButton, cancelButton);
+                    
+                    window.toast.warning('🗑️ 确认删除学生', {
+                        description: `确定要删除 ${student.chinese}${student.english ? ` (${student.english})` : ''} 吗？`,
+                        action: actionDiv,
+                        duration: 8000
+                    });
                 }
             }
 
