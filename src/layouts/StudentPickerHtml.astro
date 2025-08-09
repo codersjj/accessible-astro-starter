@@ -535,6 +535,8 @@
                 ];
                 this.isRepeatMode = false; // false: 不重复模式, true: 重复模式
                 this.playbackRate = 0.75;
+                this.audioContext = null;
+                this.audioInitialized = false;
                 this.initializeElements();
                 this.bindEvents();
                 this.updateDisplay();
@@ -613,32 +615,63 @@
                 }, 2000);
             }
 
+            initAudioContext() {
+                if (!this.audioInitialized) {
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        this.audioInitialized = true;
+                        
+                        // Resume audio context if it's suspended
+                        if (this.audioContext.state === 'suspended') {
+                            this.audioContext.resume();
+                        }
+                    } catch (error) {
+                        console.log('Audio not supported:', error);
+                        this.audioInitialized = false;
+                    }
+                }
+            }
+
             playSound() {
-                // Simple sound effect using Web Audio API
+                // Initialize audio context on first user interaction
+                this.initAudioContext();
+                
+                if (!this.audioContext || !this.audioInitialized) {
+                    return; // Silently fail if audio is not available
+                }
+
                 try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
+                    // Ensure audio context is running
+                    if (this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
                     
                     oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
+                    gainNode.connect(this.audioContext.destination);
                     
-                    // Create a pleasant "pop" sound
-                    oscillator.frequency.setValueAtTime(800 * this.playbackRate, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(200 * this.playbackRate, audioContext.currentTime + 0.1);
+                    // Create a pleasant "pop" sound with current playback rate
+                    const baseFreq = 800;
+                    const endFreq = 200;
                     
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(baseFreq * this.playbackRate, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(endFreq * this.playbackRate, this.audioContext.currentTime + 0.1);
                     
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.1);
                     
                     // Increase playback rate for next click
                     this.playbackRate += 0.1;
                     if (this.playbackRate > 2) this.playbackRate = 0.75;
                     
                 } catch (error) {
-                    console.log('Web Audio API not supported');
+                    console.log('Audio playback failed:', error);
+                    // Silently fail - don't show error to user
                 }
             }
 
