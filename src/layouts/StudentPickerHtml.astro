@@ -127,6 +127,7 @@
             align-items: center;
             box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .result-display.picking {
@@ -136,6 +137,61 @@
         @keyframes pulse {
             0% { transform: scale(1); }
             100% { transform: scale(1.05); }
+        }
+
+        .audio-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 5px 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            min-width: 50px;
+            justify-content: center;
+        }
+
+        .audio-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .audio-toggle.enabled {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        .audio-toggle.enabled:hover {
+            background: rgba(76, 175, 80, 0.4);
+        }
+
+        .audio-toggle.disabled {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+
+        .audio-toggle.disabled:hover {
+            background: rgba(244, 67, 54, 0.4);
+        }
+
+        .audio-icon {
+            font-size: 1.1em;
+            transition: transform 0.3s ease;
+        }
+
+        .audio-toggle:hover .audio-icon {
+            transform: scale(1.1);
         }
 
         .result-name {
@@ -466,6 +522,18 @@
             .title {
                 font-size: 2em;
             }
+            
+            .audio-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 5px 5px;
+                font-size: 0.8em;
+                min-width: 50px;
+            }
+            
+            .result-display {
+                padding: 30px 15px;
+            }
         }
     </style>
 </head>
@@ -495,6 +563,10 @@
             </div>
 
             <div class="result-display" id="resultDisplay">
+                <div class="audio-toggle" id="audioToggle">
+                    <span class="audio-icon" id="audioIcon">🔊</span>
+                    <span id="audioText">播报</span>
+                </div>
                 <div class="empty-result">点击下方“🎲 开始抽签”按钮开始抽签</div>
             </div>
             
@@ -700,9 +772,11 @@
                 this.playbackRate = 0.75;
                 this.audioContext = null;
                 this.audioInitialized = false;
+                this.audioEnabled = true; // 音频播报开关
                 this.initializeElements();
                 this.bindEvents();
                 this.updateDisplay();
+                this.updateAudioToggleUI();
             }
 
             initializeElements() {
@@ -723,6 +797,9 @@
                 this.noRepeatMode = document.getElementById('noRepeatMode');
                 this.repeatMode = document.getElementById('repeatMode');
                 this.starEmoji = document.getElementById('starEmoji');
+                this.audioToggle = document.getElementById('audioToggle');
+                this.audioIcon = document.getElementById('audioIcon');
+                this.audioText = document.getElementById('audioText');
             }
 
             bindEvents() {
@@ -734,6 +811,7 @@
                 this.noRepeatMode.addEventListener('click', () => this.setMode(false));
                 this.repeatMode.addEventListener('click', () => this.setMode(true));
                 this.starEmoji.addEventListener('click', () => this.handleStarClick());
+                this.audioToggle.addEventListener('click', () => this.toggleAudio());
                 
                 // 使用事件委托处理删除按钮点击
                 this.studentList.addEventListener('click', (e) => {
@@ -749,6 +827,77 @@
                         if (e.key === 'Enter') this.addStudent();
                     });
                 });
+            }
+
+            // 音频播报开关
+            toggleAudio() {
+                this.audioEnabled = !this.audioEnabled;
+                this.updateAudioToggleUI();
+                
+                if (window.toast) {
+                    window.toast.info('🔊 音频设置', {
+                        description: this.audioEnabled ? '语音播报已开启' : '语音播报已关闭'
+                    });
+                }
+            }
+
+            updateAudioToggleUI() {
+                if (this.audioEnabled) {
+                    this.audioToggle.classList.remove('disabled');
+                    this.audioToggle.classList.add('enabled');
+                    this.audioIcon.textContent = '🔊';
+                    this.audioText.textContent = '播报';
+                } else {
+                    this.audioToggle.classList.remove('enabled');
+                    this.audioToggle.classList.add('disabled');
+                    this.audioIcon.textContent = '🔇';
+                    this.audioText.textContent = '静音';
+                }
+            }
+
+            // 语音播报功能
+            speakResult(chinese, english) {
+                if (!this.audioEnabled) return;
+                
+                // 检查浏览器是否支持语音合成
+                if (!('speechSynthesis' in window)) {
+                    console.log('浏览器不支持语音合成');
+                    return;
+                }
+
+                try {
+                    // 停止之前的播报
+                    window.speechSynthesis.cancel();
+                    
+                    // 构建播报文本
+                    let textToSpeak = `抽到了 ${chinese}`;
+                    if (english) {
+                        textToSpeak += `，${english}`;
+                    }
+                    
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    
+                    // 设置语音参数
+                    utterance.lang = 'zh-CN'; // 中文
+                    utterance.rate = 0.9; // 语速
+                    utterance.pitch = 1.1; // 音调
+                    utterance.volume = 0.8; // 音量
+                    
+                    // 尝试使用中文语音
+                    const voices = window.speechSynthesis.getVoices();
+                    const chineseVoice = voices.find(voice => 
+                        voice.lang.includes('zh') || voice.name.includes('Chinese')
+                    );
+                    if (chineseVoice) {
+                        utterance.voice = chineseVoice;
+                    }
+                    
+                    // 开始播报
+                    window.speechSynthesis.speak(utterance);
+                    
+                } catch (error) {
+                    console.log('语音播报失败:', error);
+                }
             }
 
             // Star emoji click functionality
@@ -889,20 +1038,60 @@
                         this.resultDisplay.classList.remove('picking');
                         this.pickBtn.disabled = false;
                         this.updateDisplay();
+                        
+                        // 播报结果
+                        setTimeout(() => {
+                            this.speakResult(selectedStudent.chinese, selectedStudent.english);
+                        }, 500);
                     }
                 }, 100);
             }
 
             showResult(chinese, english) {
                 this.resultDisplay.innerHTML = `
+                    <div class="audio-toggle ${this.audioEnabled ? 'enabled' : 'disabled'}" id="audioToggle">
+                        <span class="audio-icon" id="audioIcon">${this.audioEnabled ? '🔊' : '🔇'}</span>
+                        <span id="audioText">${this.audioEnabled ? '播报' : '静音'}</span>
+                    </div>
                     <div class="result-name">${chinese}</div>
                     ${english ? `<div class="result-english">${english}</div>` : ''}
                 `;
+                
+                // 重新绑定音频切换按钮事件
+                const newAudioToggle = document.getElementById('audioToggle');
+                const newAudioIcon = document.getElementById('audioIcon');
+                const newAudioText = document.getElementById('audioText');
+                
+                if (newAudioToggle) {
+                    this.audioToggle = newAudioToggle;
+                    this.audioIcon = newAudioIcon;
+                    this.audioText = newAudioText;
+                    this.audioToggle.addEventListener('click', () => this.toggleAudio());
+                }
             }
 
             resetAll() {
                 this.students.forEach(student => student.picked = false);
-                this.resultDisplay.innerHTML = '<div class="empty-result">点击下方“🎲 开始抽签”按钮开始抽签</div>';
+                this.resultDisplay.innerHTML = `
+                    <div class="audio-toggle ${this.audioEnabled ? 'enabled' : 'disabled'}" id="audioToggle">
+                        <span class="audio-icon" id="audioIcon">${this.audioEnabled ? '🔊' : '🔇'}</span>
+                        <span id="audioText">${this.audioEnabled ? '播报' : '静音'}</span>
+                    </div>
+                    <div class="empty-result">点击下方“🎲 开始抽签”按钮开始抽签</div>
+                `;
+                
+                // 重新绑定音频切换按钮事件
+                const newAudioToggle = document.getElementById('audioToggle');
+                const newAudioIcon = document.getElementById('audioIcon');
+                const newAudioText = document.getElementById('audioText');
+                
+                if (newAudioToggle) {
+                    this.audioToggle = newAudioToggle;
+                    this.audioIcon = newAudioIcon;
+                    this.audioText = newAudioText;
+                    this.audioToggle.addEventListener('click', () => this.toggleAudio());
+                }
+                
                 this.updateDisplay();
                 
                 // 使用 Sonner 显示重置成功消息
@@ -1085,6 +1274,13 @@
 
         // 初始化抽签系统
         const picker = new StudentPicker();
+        
+        // 确保语音API可用时加载语音列表
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                // 语音列表已加载，无需额外操作
+            };
+        }
     </script>
 </body>
 </html>
