@@ -46,6 +46,7 @@
         }
 
         .title {
+            margin: 0 -2px;
             color: #333;
             font-size: 2.5em;
             font-weight: 700;
@@ -53,13 +54,77 @@
         }
 
         /* Star emoji interactive styles */
+        .star-wrapper {
+            position: relative;
+            display: inline-flex;
+            filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 16px rgba(255, 215, 0, 0.6));
+            /* 注意：这里不能用 overflow: hidden，否则会裁剪 starFloatUp 动画 */
+        }
+
+        .star-container {
+            position: relative;
+            display: inline-flex;
+            overflow: hidden;
+            border-radius: 50%;
+            /* 根据你的星星大小调整 width 和 height */
+            width: 1.45em;
+            height: 1.45em;
+        }
+
         .star-emoji {
             cursor: pointer;
             transition: all 0.3s ease;
-            display: inline-block;
+            display: inline-flex;
             position: relative;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
         }
 
+        .star-emoji::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                135deg,
+                transparent 0%,
+                transparent 45%,
+                rgba(255, 255, 255, 0.1) 48%,
+                rgba(255, 255, 255, 0.6) 49.5%,
+                rgba(255, 255, 255, 1) 50%,
+                rgba(255, 255, 255, 0.6) 50.5%,
+                rgba(255, 255, 255, 0.1) 52%,
+                transparent 55%,
+                transparent 100%
+            );
+            animation: gentleShine 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gentleShine {
+            0% {
+                transform: translateX(-100%) translateY(-100%);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            40% {
+                transform: translateX(100%) translateY(100%);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(100%) translateY(100%);
+                opacity: 0;
+            }
+        }
         .star-emoji:hover {
             transform: translateY(-2px) scale(1.1);
         }
@@ -542,7 +607,11 @@
     <div class="container">
         <div class="header">
             <h1 class="title">
-                <span class="star-emoji" id="starEmoji">🌟</span>群星璀璨0802国际影视班抽签系统
+              <div class="star-wrapper">
+                <div class="star-container">
+                  <span class="star-emoji" id="starEmoji">🌟</span>
+                </div>
+              </div>群星璀璨0802国际影视班抽签系统
             </h1>
         </div>
         <p class="subtitle">使用 Fisher-Yates 随机化算法，公平、随机</p>
@@ -919,8 +988,16 @@
                 star.style.left = '0px';
                 star.style.top = '0px';
                 
-                this.starEmoji.style.position = 'relative';
-                this.starEmoji.appendChild(star);
+                // this.starEmoji.style.position = 'relative';
+                // this.starEmoji.appendChild(star);
+                // 找到外层的 star-wrapper 容器
+                const starWrapper = this.starEmoji.closest('.star-wrapper');
+                if (starWrapper) {
+                    starWrapper.appendChild(star);
+                } else {
+                    // 如果没有 star-wrapper，就添加到 star-emoji 的父元素
+                    this.starEmoji.parentElement.appendChild(star);
+                }
                 
                 setTimeout(() => {
                     star.remove();
